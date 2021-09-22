@@ -11,6 +11,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
 
     steps:
     - name: Checkout repository
@@ -27,8 +30,8 @@ jobs:
       with:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
-        password: ${{ secrets.GH_TOKEN }}
-        
+        password: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Tag images
       run: |
         docker tag musicbrainz-docker_musicbrainz:latest ${{ env.TAG_PREFIX }}/musicbrainz-docker_musicbrainz:latest
