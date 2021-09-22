@@ -30,15 +30,17 @@ jobs:
         password: ${{ secrets.GH_TOKEN }}
         
     - name: Tag images
-      run: docker tag musicbrainz-docker_musicbrainz:latest ${{ env.TAG_PREFIX }}/musicbrainz-docker_musicbrainz:latest \
-           && docker tag musicbrainz-docker_indexer:latest ${{ env.TAG_PREFIX }}/musicbrainz-docker_indexer:latest \
-           && docker tag musicbrainz-docker_db:12 ${{ env.TAG_PREFIX }}/musicbrainz-docker_db:12 \
-           && docker tag musicbrainz-docker_mq:latest ${{ env.TAG_PREFIX }}/musicbrainz-docker_mq:latest \
-           && docker tag musicbrainz-docker_search:3.4.2 ${{ env.TAG_PREFIX }}/musicbrainz-docker_search:3.4.2
-        
+      run: |
+        docker tag musicbrainz-docker_musicbrainz:latest ${{ env.TAG_PREFIX }}/musicbrainz-docker_musicbrainz:latest
+        docker tag musicbrainz-docker_indexer:latest ${{ env.TAG_PREFIX }}/musicbrainz-docker_indexer:latest
+        docker tag musicbrainz-docker_db:12 ${{ env.TAG_PREFIX }}/musicbrainz-docker_db:12
+        docker tag musicbrainz-docker_mq:latest ${{ env.TAG_PREFIX }}/musicbrainz-docker_mq:latest
+        docker tag musicbrainz-docker_search:3.4.2 ${{ env.TAG_PREFIX }}/musicbrainz-docker_search:3.4.2
+
     - name: Push images to registry
-      run: docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_musicbrainz:latest \
-           && docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_indexer:latest \
-           && docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_db:12 \
-           && docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_mq:latest \
-           && docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_search:3.4.2
+      run: |
+        docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_musicbrainz:latest
+        docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_indexer:latest
+        docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_db:12
+        docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_mq:latest  
+           docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_search:3.4.2
