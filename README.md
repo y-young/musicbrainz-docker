@@ -77,7 +77,7 @@ If you use [UFW](https://help.ubuntu.com/community/UFW) to manage your firewall:
 
 ## Components version
 
-* Current MB Branch: [v-2021-11-15](build/musicbrainz/Dockerfile#L51)
+* Current MB Branch: [v-2021-12-13](build/musicbrainz/Dockerfile#L51)
 * Current DB_SCHEMA_SEQUENCE: [26](build/musicbrainz/DBDefs.pm#L112)
 * Postgres Version: [12](docker-compose.yml)
   (can be changed by setting the environment variable `POSTGRES_VERSION`)
@@ -450,8 +450,9 @@ git clone https://github.com/metabrainz/musicbrainz-docker.git
 cd musicbrainz-docker
 echo MUSICBRAINZ_SERVER_LOCAL_ROOT="$MUSICBRAINZ_SERVER_LOCAL_ROOT" >> .env
 admin/configure add musicbrainz-dev
-sudo docker-compose up -d
+sudo docker-compose build
 sudo docker-compose run --rm musicbrainz createdb.sh -sample -fetch
+sudo docker-compose up -d
 ```
 
 The four differences are:
