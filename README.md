@@ -16,6 +16,7 @@ This repo contains everything needed to run a musicbrainz slave server with sear
 - [Installation](#installation)
   * [Build Docker images](#build-docker-images)
   * [Create database](#create-database)
+  * [Build materialized tables](#build-materialized-tables)
   * [Start website](#start-website)
   * [Set up search indexes](#set-up-search-indexes)
   * [Enable replication](#enable-replication)
@@ -26,6 +27,9 @@ This repo contains everything needed to run a musicbrainz slave server with sear
   * [Docker Compose overrides](#docker-compose-overrides)
 - [Test setup](#test-setup)
 - [Development setup](#development-setup)
+  * [Local development of MusicBrainz Server](#local-development-of-musicbrainz-server)
+  * [Local development of Search Index Rebuilder](#local-development-of-search-index-rebuilder)
+  * [Local development of MusicBrainz Solr](#local-development-of-musicbrainz-solr)
 - [Helper scripts](#helper-scripts)
   * [Recreate database](#recreate-database)
   * [Recreate database with indexed search](#recreate-database-with-indexed-search)
@@ -40,7 +44,7 @@ This repo contains everything needed to run a musicbrainz slave server with sear
 
 * CPU: 16 threads (or 2 without indexed search)
 * RAM: 16 GB (or 4 without indexed search)
-* Disk Space: 150 GB (or 60 without indexed search)
+* Disk Space: 200 GB (or 70 without indexed search)
             + system disk usage
 
 ### Required software
@@ -77,13 +81,13 @@ If you use [UFW](https://help.ubuntu.com/community/UFW) to manage your firewall:
 
 ## Components version
 
-* Current MB Branch: [v-2022-04-18](build/musicbrainz/Dockerfile#L53)
-* Current DB_SCHEMA_SEQUENCE: [26](build/musicbrainz/DBDefs.pm#L112)
+* Current MB Branch: [v-2022-05-16-schema-change](build/musicbrainz/Dockerfile#L53)
+* Current DB_SCHEMA_SEQUENCE: [27](build/musicbrainz/Dockerfile#L129)
 * Postgres Version: [12](docker-compose.yml)
   (can be changed by setting the environment variable `POSTGRES_VERSION`)
 * MB Solr search server: [3.4.2](docker-compose.yml#L88)
   (can be changed by setting the environment variable `MB_SOLR_VERSION`)
-* Search Index Rebuilder: [2.1.1](build/sir/Dockerfile#L37)
+* Search Index Rebuilder: [3.0.1](build/sir/Dockerfile#L37)
 
 ## Installation
 
@@ -120,6 +124,21 @@ sudo docker-compose run --rm musicbrainz createdb.sh -fetch
 
 <!-- TODO: document available FTP servers -->
 <!-- TODO: document how to load local dumps -->
+
+### Build materialized tables
+
+This is an optional step.
+
+MusicBrainz Server makes use of materialized (or denormalized) tables in production to improve the performance of
+certain pages and features. These tables duplicate primary table data and can take up several additional gigabytes of
+space, so they're optional but recommended. If you don't populate these tables, the server will generally fall back
+to slower queries in their place.
+
+If you wish to configure the materialized tables, you can run:
+
+```bash
+sudo docker-compose exec musicbrainz bash -c './admin/BuildMaterializedTables --database=MAINTENANCE all'
+```
 
 ### Start website
 
@@ -444,10 +463,11 @@ For local development of MusicBrainz Server, you can run the below
 commands instead of following the above [installation](#installation):
 
 ```bash
-git clone --recursive https://github.com/metabrainz/musicbrainz-server.git
+git clone https://github.com/metabrainz/musicbrainz-server.git
 MUSICBRAINZ_SERVER_LOCAL_ROOT=$PWD/musicbrainz-server
 git clone https://github.com/metabrainz/musicbrainz-docker.git
 cd musicbrainz-docker
+echo MUSICBRAINZ_DOCKER_HOST_IPADDRCOL=127.0.0.1: >> .env
 echo MUSICBRAINZ_SERVER_LOCAL_ROOT="$MUSICBRAINZ_SERVER_LOCAL_ROOT" >> .env
 admin/configure add musicbrainz-dev
 sudo docker-compose build
@@ -462,6 +482,7 @@ The four differences are:
 4. JavaScript and resources are automaticaly recompiled on file changes,
 5. MusicBrainz Server is automatically restarted on Perl file changes,
 6. MusicBrainz Server code is in `musicbrainz-server/` directory.
+7. Ports are published to the host only (through `MUSICBRAINZ_DOCKER_HOST_IPADDRCOL`)
 
 After changing code in `musicbrainz-server/`, it can be run as follows:
 
@@ -554,7 +575,6 @@ admin/purge-message-queues
 sudo docker-compose run --rm search load-search-indexes.sh --force
 sudo docker-compose run --rm musicbrainz recreatedb.sh
 sudo docker-compose up -d
-admin/setup-amqp-triggers clean
 admin/setup-amqp-triggers install
 admin/configure add replication-cron
 sudo docker-compose up -d
