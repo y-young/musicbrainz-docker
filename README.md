@@ -81,7 +81,7 @@ If you use [UFW](https://help.ubuntu.com/community/UFW) to manage your firewall:
 
 ## Components version
 
-* Current MB Branch: [v-2022-06-07](build/musicbrainz/Dockerfile#L53)
+* Current MB Branch: [v-2022-06-20](build/musicbrainz/Dockerfile#L53)
 * Current DB_SCHEMA_SEQUENCE: [27](build/musicbrainz/Dockerfile#L129)
 * Postgres Version: [12](docker-compose.yml)
   (can be changed by setting the environment variable `POSTGRES_VERSION`)
@@ -99,6 +99,14 @@ Download this repository and change current working directory with:
 ```bash
 git clone https://github.com/metabrainz/musicbrainz-docker.git
 cd musicbrainz-docker
+```
+
+If you want to mirror the Postgres database only (neither the website
+nor the web API), change the base configuration with the following
+command (as a first step, otherwise it will blank it out):
+
+```bash
+admin/configure with alt-db-only-mirror
 ```
 
 ### Build Docker images
@@ -390,6 +398,13 @@ To publish ports of services `db`, `mq`, `redis` and `search`
 
 ```bash
 admin/configure add publishing-all-ports
+sudo docker-compose up -d
+```
+
+If you are running a database only mirror, run this instead:
+
+```bash
+admin/configure add publishing-db-port
 sudo docker-compose up -d
 ```
 
