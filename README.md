@@ -81,7 +81,7 @@ If you use [UFW](https://help.ubuntu.com/community/UFW) to manage your firewall:
 
 ## Components version
 
-* Current MB Branch: [v-2022-08-08](build/musicbrainz/Dockerfile#L53)
+* Current MB Branch: [v-2022-09-06](build/musicbrainz/Dockerfile#L53)
 * Current DB_SCHEMA_SEQUENCE: [27](build/musicbrainz/Dockerfile#L129)
 * Postgres Version: [12](docker-compose.yml)
   (can be changed by setting the environment variable `POSTGRES_VERSION`)
@@ -176,6 +176,8 @@ Depending on your available ressources in CPU/RAM vs. bandwidth:
 
   (This option is known to take 4½ hours with 16 CPU threads and 16 GB RAM.)
 
+  To index cores individually, rather than all at once, add `--entity-type CORE` (any number of times) to the command above. For example `sudo docker-compose exec indexer python -m sir reindex --entity-type artist --entity-type release`
+
 * Or download pre-built search indexes based on the latest data dump:
 
   ```bash
@@ -217,7 +219,7 @@ sudo docker-compose up -d
 Run replication script once to catch up with latest database updates:
 
 ```bash
-sudo docker-compose exec musicbrainz replication.sh &
+sudo bash -c 'docker-compose exec musicbrainz replication.sh &' && \
 sudo docker-compose exec musicbrainz /usr/bin/tail -f mirror.log
 ```
 
