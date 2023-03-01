@@ -81,7 +81,7 @@ If you use [UFW](https://help.ubuntu.com/community/UFW) to manage your firewall:
 
 ## Components version
 
-* Current MB Branch: [v-2022-09-06](build/musicbrainz/Dockerfile#L53)
+* Current MB Branch: [v-2023-02-28](build/musicbrainz/Dockerfile#L53)
 * Current DB_SCHEMA_SEQUENCE: [27](build/musicbrainz/Dockerfile#L129)
 * Postgres Version: [12](docker-compose.yml)
   (can be changed by setting the environment variable `POSTGRES_VERSION`)
@@ -188,7 +188,7 @@ Depending on your available ressources in CPU/RAM vs. bandwidth:
   (This option downloads 30GB of Zstandard-compressed archives from FTP.)
 
 :warning: Search indexes are not included in replication.
-You will have to rebuild search indexes regularly to keep it up-to-date.
+You will have to rebuild search indexes regularly to keep it up-to-date. This can be done manually with the commands above, with Live Indexing (see below), or with a scheduled cron job. Here's an example cron job that can be added to your `etc/crontab` file from your server's root: `0 1 * * 7 YOUR_USER_NAME cd ~/musicbrainz-docker && /usr/bin/docker-compose exec -T indexer python -m sir reindex`.
 
 At this point indexed search works on the local website/webservice.
 For replication, keep going!
