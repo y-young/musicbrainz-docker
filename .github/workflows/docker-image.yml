@@ -1,12 +1,8 @@
-name: Docker Image CI
+name: Build and publish Docker image
 
 on:
   push:
     branches: [ master ]
-
-env:
-  REGISTRY: ghcr.io
-  TAG_PREFIX: ghcr.io/${{ github.actor }}
 
 jobs:
   build:
@@ -17,33 +13,54 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Build images
       run: docker-compose build
 
     - name: List images
       run: docker images
-
-    - name: Log into registry
-      uses: docker/login-action@v1
+      
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
       with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
+        username: yyoung01
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: y-young
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Tag images
+    - name: Tag and push images
       run: |
-        docker tag musicbrainz-docker_musicbrainz:latest ${{ env.TAG_PREFIX }}/musicbrainz-docker_musicbrainz:latest
-        docker tag musicbrainz-docker_indexer:latest ${{ env.TAG_PREFIX }}/musicbrainz-docker_indexer:latest
-        docker tag musicbrainz-docker_db:12 ${{ env.TAG_PREFIX }}/musicbrainz-docker_db:12
-        docker tag musicbrainz-docker_mq:latest ${{ env.TAG_PREFIX }}/musicbrainz-docker_mq:latest
-        docker tag musicbrainz-docker_search:3.4.2 ${{ env.TAG_PREFIX }}/musicbrainz-docker_search:3.4.2
-
-    - name: Push images to registry
-      run: |
-        docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_musicbrainz:latest
-        docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_indexer:latest
-        docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_db:12
-        docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_mq:latest  
-           docker push ${{ env.TAG_PREFIX }}/musicbrainz-docker_search:3.4.2
+        VERSION=$(awk '/MUSICBRAINZ_SERVER_VERSION=/' build/musicbrainz/Dockerfile | cut -d'=' -f2)
+        echo "Version: $VERSION"
+        images=()
+        for registry in "yyoung01" "ghcr.io/y-young"
+        do
+            for tag in "latest" $VERSION
+            do
+                for image in "musicbrainz-docker_musicbrainz" "musicbrainz-docker_indexer" "musicbrainz-docker_mq"
+                do
+                    docker tag $image:latest $registry/$image:$tag
+                    images+=("$registry/$image:$tag")
+                done
+            done
+            for tag in "12" $VERSION
+            do
+                docker tag musicbrainz-docker_db:$tag $registry/musicbrainz-docker_db:$tag
+                images+=("$registry/musicbrainz-docker_db:$tag")
+            done
+            for tag in "3.4.2" $VERSION
+            do
+                docker tag musicbrainz-docker_search:$tag $registry/musicbrainz-docker_search:$tag
+                images+=("$registry/musicbrainz-docker_search:$tag")
+            done
+        done
+        for image in "${images[@]}"
+        do
+            docker push $image
+        done
