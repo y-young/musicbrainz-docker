@@ -45,8 +45,7 @@ search and replication in docker.
 
 * CPU: 16 threads (or 2 without indexed search), x86-64 architecture
 * RAM: 16 GB (or 4 without indexed search)
-* Disk Space: 200 GB (or 70 without indexed search)
-            + system disk usage
+* Disk Space: 200 GB (or 100 without indexed search)
 
 ### Required software
 
@@ -86,8 +85,8 @@ If you use [UFW](https://help.ubuntu.com/community/UFW) to manage your firewall:
 
 ## Components version
 
-* Current MB Branch: [v-2023-05-02](build/musicbrainz/Dockerfile#L53)
-* Current DB_SCHEMA_SEQUENCE: [27](build/musicbrainz/Dockerfile#L129)
+* Current MB Branch: [v-2023-05-15-schema-change](build/musicbrainz/Dockerfile#L53)
+* Current DB_SCHEMA_SEQUENCE: [28](build/musicbrainz/Dockerfile#L129)
 * Postgres Version: [12](docker-compose.yml)
   (can be changed by setting the environment variable `POSTGRES_VERSION`)
 * MB Solr search server: [3.4.2](docker-compose.yml#L88)
