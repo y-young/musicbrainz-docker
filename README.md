@@ -35,6 +35,8 @@ search and replication in docker.
   - [Recreate database](#recreate-database)
   - [Recreate database with indexed search](#recreate-database-with-indexed-search)
 * [Update](#update)
+* [Cleanup](#cleanup)
+* [Removal](#removal)
 * [Issues](#issues)
 
 <!-- tocstop -->
@@ -85,7 +87,7 @@ If you use [UFW](https://help.ubuntu.com/community/UFW) to manage your firewall:
 
 ## Components version
 
-* Current MB Branch: [v-2023-08-07](build/musicbrainz/Dockerfile#L53)
+* Current MB Branch: [v-2023-08-28](build/musicbrainz/Dockerfile#L53)
 * Current DB_SCHEMA_SEQUENCE: [28](build/musicbrainz/Dockerfile#L129)
 * Postgres Version: [12](docker-compose.yml)
   (can be changed by setting the environment variable `POSTGRES_VERSION`)
@@ -651,6 +653,38 @@ git describe --dirty
 
 Check [releases](https://github.com/metabrainz/musicbrainz-docker/releases) for
 update instructions.
+
+## Cleanup
+
+Each time you are rebuilding a new image, for either updating to a new
+release or applying some changes in configuration, the previous image
+is not removed.
+On the one hand, it is convenient as it allows you to quickly restore
+it in case the new image has critical issues.
+On the other hand, it is filling your disk with some GBs over time.
+Thus it is recommended to do a regular cleanup as follows.
+
+:warning: If you are using Docker for anything else than this Compose project,
+the below command will also remove all unused images.
+
+```bash
+sudo docker system prune --all
+```
+
+## Removal
+
+Removing the directory isn’t enough, the Docker objects (images,
+containers, volumes) have to be removed too for a complete removal.
+
+Before removing the directory where you cloned this repository,
+run the following command **from that directory**.
+
+```bash
+sudo docker-compose down --remove-orphans --rmi all --volumes
+```
+
+It will output what has been removed so that you can check it.
+Only after it is over, you can remove the directory.
 
 ## Issues
 
