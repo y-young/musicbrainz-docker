@@ -87,8 +87,8 @@ If you use [UFW](https://help.ubuntu.com/community/UFW) to manage your firewall:
 
 ## Components version
 
-* Current MB Branch: [v-2023-10-02](build/musicbrainz/Dockerfile#L53)
-* Current DB_SCHEMA_SEQUENCE: [28](build/musicbrainz/Dockerfile#L129)
+* Current MB Branch: [v-2023-11-13](build/musicbrainz/Dockerfile#L54)
+* Current DB_SCHEMA_SEQUENCE: [28](build/musicbrainz/Dockerfile#L85)
 * Postgres Version: [12](docker-compose.yml)
   (can be changed by setting the environment variable `POSTGRES_VERSION`)
 * MB Solr search server: [3.4.2](docker-compose.yml#L88)
@@ -566,9 +566,10 @@ depends on any other. Its development rather rely on schema. See
 However, other services depend on it, so it is useful to run a local
 version of `mb-solr` in `search` service for integration tests:
 
-1. Run `build.sh` from your `mb-solr` local working copy to build a
-   an image of `metabrainz/mb-solr` with a custom tag.
-2. Set `MB_SOLR_VERSION` in `.env` to this custom tag.
+1. Run `build.sh` from your `mb-solr` local working copy, which will
+   build an image of `metabrainz/mb-solr` with a local tag reflecting
+   the working tree status of your local clone of `mb-solr`.
+2. Set `MB_SOLR_VERSION` in `.env` to this local tag.
 3. Run `sudo docker-compose up -d`
 
 ## Helper scripts
