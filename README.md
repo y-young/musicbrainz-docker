@@ -87,7 +87,7 @@ If you use [UFW](https://help.ubuntu.com/community/UFW) to manage your firewall:
 
 ## Components version
 
-* Current MB Branch: [v-2023-11-13](build/musicbrainz/Dockerfile#L54)
+* Current MB Branch: [v-2023-11-27](build/musicbrainz/Dockerfile#L54)
 * Current DB_SCHEMA_SEQUENCE: [28](build/musicbrainz/Dockerfile#L85)
 * Postgres Version: [12](docker-compose.yml)
   (can be changed by setting the environment variable `POSTGRES_VERSION`)
@@ -364,7 +364,7 @@ This number can be changed using the Docker environment variable
 #### Customize download server
 
 By default, data dumps and pre-built search indexes are downloaded from
-`http://ftp.eu.metabrainz.org/pub/musicbrainz`.
+`https://data.metabrainz.org/pub/musicbrainz`.
 
 The download server can be changed using the Docker environment variable
 `MUSICBRAINZ_BASE_DOWNLOAD_URL`.

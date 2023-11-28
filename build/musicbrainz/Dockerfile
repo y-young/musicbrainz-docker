@@ -51,7 +51,7 @@ RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.asc] https://deb.nodesourc
     # Install yarn from nodejs
     && corepack enable
 
-ARG MUSICBRAINZ_SERVER_VERSION=v-2023-11-13
+ARG MUSICBRAINZ_SERVER_VERSION=v-2023-11-27
 LABEL org.metabrainz.musicbrainz-server.version="${MUSICBRAINZ_SERVER_VERSION}"
 RUN git clone --depth=1 --branch $MUSICBRAINZ_SERVER_VERSION https://github.com/metabrainz/musicbrainz-server.git musicbrainz-server
 
@@ -80,7 +80,7 @@ ARG POSTGRES_USER=doesntmatteraslongasyoudontcompiletests
 ARG POSTGRES_PASSWORD=doesntmatteraslongasyoudontcompiletests
 
 ENV BASH_ENV=/noninteractive.bash_env \
-    MUSICBRAINZ_BASE_DOWNLOAD_URL=http://ftp.eu.metabrainz.org/pub/musicbrainz \
+    MUSICBRAINZ_BASE_DOWNLOAD_URL=https://data.metabrainz.org/pub/musicbrainz \
     MUSICBRAINZ_CATALYST_DEBUG=0 \
     MUSICBRAINZ_DB_SCHEMA_SEQUENCE=28 \
     MUSICBRAINZ_DEVELOPMENT_SERVER=0 \
