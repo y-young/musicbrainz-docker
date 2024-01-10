@@ -51,7 +51,7 @@ RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.asc] https://deb.nodesourc
     # Install yarn from nodejs
     && corepack enable
 
-ARG MUSICBRAINZ_SERVER_VERSION=v-2023-12-20
+ARG MUSICBRAINZ_SERVER_VERSION=v-2024-01-08
 LABEL org.metabrainz.musicbrainz-server.version="${MUSICBRAINZ_SERVER_VERSION}"
 RUN git clone --depth=1 --branch $MUSICBRAINZ_SERVER_VERSION https://github.com/metabrainz/musicbrainz-server.git musicbrainz-server
 
@@ -69,6 +69,9 @@ RUN eval "$(perl -Mlocal::lib)" \
         Term::Size::Any \
     && rm -rf /root/.cpan* /root/perl5/man/
 
+RUN install -m 0755 \
+    admin/replication/hooks/post-process.sample \
+    admin/replication/hooks/post-process
 COPY DBDefs.pm /musicbrainz-server/lib/
 COPY scripts/* /usr/local/bin/
 RUN cat /usr/local/bin/snippet.perllocallib.bashrc >> ~/.bashrc \
