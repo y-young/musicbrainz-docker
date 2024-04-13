@@ -47,7 +47,7 @@ search and replication in docker.
 
 * CPU: 16 threads (or 2 without indexed search), x86-64 architecture
 * RAM: 16 GB (or 4 without indexed search)
-* Disk Space: 200 GB (or 100 without indexed search)
+* Disk Space: 250 GB (or 100 without indexed search)
 
 ### Required software
 
@@ -87,7 +87,7 @@ If you use [UFW](https://help.ubuntu.com/community/UFW) to manage your firewall:
 
 ## Components version
 
-* Current MB Branch: [v-2024-03-11](build/musicbrainz/Dockerfile#L54)
+* Current MB Branch: [v-2024-04-09](build/musicbrainz/Dockerfile#L54)
 * Current DB_SCHEMA_SEQUENCE: [28](build/musicbrainz/Dockerfile#L85)
 * Postgres Version: [12](docker-compose.yml)
   (can be changed by setting the environment variable `POSTGRES_VERSION`)
@@ -400,6 +400,40 @@ This can be changed by creating a custom configuration file under
 [`local/`](local/) directory,
 [and finally](https://docs.docker.com/storage/bind-mounts/#choose-the--v-or---mount-flag)
 setting the Docker environment variable `SIR_CONFIG_PATH` to its path.
+
+#### Customize backend Postgres server
+
+By default, the services `indexer` and `musicbrainz` are trying to connect to the host `db` (for both read-only and write host) but the hosts can
+be customized using the `MUSICBRAINZ_POSTGRES_SERVER` and `MUSICBRAINZ_POSTGRES_READONLY_SERVER` environment variables.
+
+Notes:
+* After switching to another Postgres server:
+  * If not transferring data, it is needed to create the database again.
+  * For live indexing, the RabbitMQ server has to still be reachable from the Postgres server.
+* The helper scripts `check-search-indexes` and `create-amqp-extension` won’t work anymore.
+* The service `db` will still be up even if unused.
+
+#### Customize backend RabbitMQ server
+
+By default, the services `db`, `indexer` and `musicbrainz` are trying to connect to the host `mq`
+but the host can be customized using the `MUSICBRAINZ_RABBITMQ_SERVER` environment variable.
+
+Notes:
+* After switching to another RabbitMQ server:
+  - Live indexing requires to go through AMQP Setup again.
+  - If not transferring data, it might be needed to build search indexes again.
+* The helper script `purge-message-queues` won’t work anymore.
+* The service `mq` will still be up even if unused.
+
+#### Customize backend Redis server
+
+By default, the service `musicbrainz` is trying to connect to the host `redis`
+but the host can be customized using the `MUSICBRAINZ_REDIS_SERVER` environment variable.
+
+Notes:
+* After switching to another Redis server:
+  - If not transferring data, MusicBrainz user sessions will be reset.
+* The service `redis` will still be running even if unused.
 
 ### Docker Compose overrides
 

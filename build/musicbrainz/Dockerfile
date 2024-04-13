@@ -47,19 +47,20 @@ RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.asc] https://deb.nodesourc
         xz-utils \
         # Needed for XML:LibXML
         zlib1g-dev \
-    && rm -rf /var/lib/apt/lists/* \
+        && \
+    rm -rf /var/lib/apt/lists/* && \
     # Install yarn from nodejs
-    && corepack enable
+    corepack enable
 
-ARG MUSICBRAINZ_SERVER_VERSION=v-2024-03-11
+ARG MUSICBRAINZ_SERVER_VERSION=v-2024-04-09
 LABEL org.metabrainz.musicbrainz-server.version="${MUSICBRAINZ_SERVER_VERSION}"
 RUN git clone --depth=1 --branch $MUSICBRAINZ_SERVER_VERSION https://github.com/metabrainz/musicbrainz-server.git musicbrainz-server
 
 WORKDIR /musicbrainz-server
 
-RUN eval "$(perl -Mlocal::lib)" \
-    && cpanm --installdeps --notest . \
-    && cpanm --notest \
+RUN eval "$(perl -Mlocal::lib)" && \
+    cpanm --installdeps --notest . && \
+    cpanm --notest \
         Catalyst::Plugin::StackTrace \
         Plack::Handler::Starlet \
         Plack::Middleware::Debug::Base \
@@ -67,16 +68,17 @@ RUN eval "$(perl -Mlocal::lib)" \
         Starlet \
         Starlet::Server \
         Term::Size::Any \
-    && rm -rf /root/.cpan* /root/perl5/man/
+        && \
+    rm -rf /root/.cpan* /root/perl5/man/
 
 RUN install -m 0755 \
     admin/replication/hooks/post-process.sample \
     admin/replication/hooks/post-process
 COPY DBDefs.pm /musicbrainz-server/lib/
 COPY scripts/* /usr/local/bin/
-RUN cat /usr/local/bin/snippet.perllocallib.bashrc >> ~/.bashrc \
-    && rm /usr/local/bin/snippet.perllocallib.bashrc \
-    && ln -s /usr/local/bin/docker-entrypoint.sh /
+RUN cat /usr/local/bin/snippet.perllocallib.bashrc >> ~/.bashrc && \
+    rm /usr/local/bin/snippet.perllocallib.bashrc && \
+    ln -s /usr/local/bin/docker-entrypoint.sh /
 
 # Postgres user/password would be solely needed to compile tests
 ARG POSTGRES_USER=doesntmatteraslongasyoudontcompiletests
@@ -87,6 +89,10 @@ ENV BASH_ENV=/noninteractive.bash_env \
     MUSICBRAINZ_CATALYST_DEBUG=0 \
     MUSICBRAINZ_DB_SCHEMA_SEQUENCE=28 \
     MUSICBRAINZ_DEVELOPMENT_SERVER=0 \
+    MUSICBRAINZ_POSTGRES_SERVER=db \
+    MUSICBRAINZ_POSTGRES_READONLY_SERVER=db \
+    MUSICBRAINZ_RABBITMQ_SERVER=mq \
+    MUSICBRAINZ_REDIS_SERVER=redis \
     MUSICBRAINZ_SEARCH_SERVER=search:8983/solr \
     MUSICBRAINZ_SERVER_PROCESSES=10 \
     MUSICBRAINZ_STANDALONE_SERVER=0 \
@@ -97,10 +103,10 @@ ENV BASH_ENV=/noninteractive.bash_env \
     POSTGRES_USER=musicbrainz \
     POSTGRES_PASSWORD=musicbrainz
 
-RUN yarn install \
-    && yarn cache clean \
-    && eval "$(perl -Mlocal::lib)" \
-    && /musicbrainz-server/script/compile_resources.sh
+RUN yarn install && \
+    yarn cache clean && \
+    eval "$(perl -Mlocal::lib)" && \
+    /musicbrainz-server/script/compile_resources.sh
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["start.sh"]
